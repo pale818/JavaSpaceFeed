@@ -32,7 +32,7 @@ public class NewsRepository implements NewsRepositoryInterface {
      */
     @Override
     public void insertNews(NewsFeed news) {
-        db.insertNewsRelease(news); // Calls the DatabaseService to handle the insert.
+        db.insertNewsFeed(news); // Calls the DatabaseService to handle the insert.
     }
 
     /**
@@ -57,7 +57,7 @@ public class NewsRepository implements NewsRepositoryInterface {
     @Override
     public Set<String> getAllGuids() {
         Set<String> guids = new HashSet<>(); // Initializes a set to store unique GUIDs.
-        String sql = "SELECT guid FROM NewsRelease"; // SQL query to select all GUIDs.
+        String sql = "SELECT guid FROM NewsFeed"; // SQL query to select all GUIDs.
 
         // Establishes a database connection and executes the query.
         // The try-with-resources ensures the connection and statement are closed automatically.
@@ -78,15 +78,15 @@ public class NewsRepository implements NewsRepositoryInterface {
     /**
      * Implements the `findAll` method from `NewsRepositoryInterface`.
      * This method retrieves all news releases from the database, orders them by publication date,
-     * and maps the database records to `NewsRelease` objects.
+     * and maps the database records to `NewsFeed` objects.
      *
-     * @return A `List` of all NewsRelease objects found in the database.
+     * @return A `List` of all NewsFeed objects found in the database.
      */
     @Override
     public List<NewsFeed> findAll() {
         List<NewsFeed> newsList = new ArrayList<>(); // Initializes a list to store the retrieved news.
-        // SQL query to select all relevant columns from the NewsRelease table, ordered by date.
-        String sql = "SELECT title, description, link, guid, pubDate, imageUrl, category, localImagePath FROM NewsRelease ORDER BY pubDate DESC";
+        // SQL query to select all relevant columns from the NewsFeed table, ordered by date.
+        String sql = "SELECT title, description, link, guid, pubDate, imageUrl, category, localImagePath FROM NewsFeed ORDER BY pubDate DESC";
 
         // Establishes a database connection and executes the query.
         try (Connection conn = DriverManager.getConnection(DatabaseSingleton.CONNECTION_URL);
@@ -94,8 +94,8 @@ public class NewsRepository implements NewsRepositoryInterface {
              ResultSet rs = stmt.executeQuery()) { // Executes the query and gets the results.
 
             while (rs.next()) { // Iterates through each row returned by the query.
-                NewsFeed news = new NewsFeed(); // Creates a new NewsRelease object for each row.
-                // Populates the NewsRelease object with data from the current database row.
+                NewsFeed news = new NewsFeed(); // Creates a new NewsFeed object for each row.
+                // Populates the NewsFeed object with data from the current database row.
                 news.setTitle(rs.getString("title"));
                 news.setDescription(rs.getString("description"));
                 news.setLink(rs.getString("link"));
@@ -105,7 +105,7 @@ public class NewsRepository implements NewsRepositoryInterface {
                 // Converts the category string from the database back into a `NewsCategory` enum.
                 news.setCategory(NewsCategory.valueOf(rs.getString("category")));
                 news.setLocalImagePath(rs.getString("localImagePath"));
-                newsList.add(news); // Adds the populated NewsRelease object to the list.
+                newsList.add(news); // Adds the populated NewsFeed object to the list.
             }
         } catch (SQLException e) {
             e.printStackTrace(); // Prints any database errors.

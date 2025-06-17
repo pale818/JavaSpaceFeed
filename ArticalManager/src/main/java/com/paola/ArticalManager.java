@@ -4,6 +4,7 @@
 
 package com.paola;
 
+
 /**
  *
  * @author paola
@@ -11,5 +12,5 @@ package com.paola;
 
 
 public class ArticalManager {
-
+   
 }

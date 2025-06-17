@@ -74,7 +74,7 @@ public class NewsController {
 
     /*
     // This is an older version of getting the current news, which might return null directly.
-    // public NewsRelease getCurrentNews() { ... }
+    // public NewsFeed getCurrentNews() { ... }
     */
 
     /**
@@ -82,7 +82,7 @@ public class NewsController {
      * Using Optional helps to explicitly handle cases where there might be no news
      * (e.g., after a filter results in an empty list) without returning a null value directly.
      *
-     * @return An Optional containing the current NewsRelease, or an empty Optional if the filtered list is empty.
+     * @return An Optional containing the current NewsFeed, or an empty Optional if the filtered list is empty.
      */
     public Optional<NewsFeed> getOptionalCurrentNews() {
         return filteredNews.isEmpty() ? Optional.empty() : Optional.of(filteredNews.get(currentIndex));
@@ -127,7 +127,7 @@ public class NewsController {
      * This is useful for loading new data or refreshing the content.
      * After setting a new list, the filter is reset and the view returns to the first item.
      *
-     * @param newsList The new list of NewsRelease objects to set.
+     * @param newsList The new list of NewsFeed objects to set.
      */
     public void setNewsList(List<NewsFeed> newsList) {
         this.allNews = new ArrayList<>(newsList);

@@ -30,8 +30,9 @@ public class DatabaseSingleton {
     // server address (localhost:1433), database name (Photo), and credentials (user/password).
     // 'encrypt=true;trustServerCertificate=true' are for secure connection.
     public static final String CONNECTION_URL =
-            "jdbc:sqlserver://localhost:1433;databaseName=Photo;encrypt=true;trustServerCertificate=true;user=photo_user;password=photo123!";
-
+            "jdbc:sqlserver://localhost:1433;databaseName=Photo;encrypt=true;trustServerCertificate=true;user=photoUser;password=photo123!";
+    
+   
     // --- Private Constructor for Singleton Pattern ---
     // By making the constructor private, no other part of the code can create new
     // DatabaseService objects directly, enforcing the singleton pattern.
@@ -47,21 +48,21 @@ public class DatabaseSingleton {
 
     /**
      * Inserts a new news release record into the database.
-     * It uses a **stored procedure** named 'InsertNewsRelease' on the database server
+     * It uses a **stored procedure** named 'InsertFeed' on the database server
      * for organized and potentially more secure data insertion.
      *
-     * @param news The NewsRelease object containing all the data to be inserted.
+     * @param news The NewsFeed object containing all the data to be inserted.
      */
-    public static void insertNewsRelease(NewsFeed news) {
+    public static void insertNewsFeed(NewsFeed news) {
         // The SQL command to execute the stored procedure with placeholders (?) for values.
-        String sql = "EXEC InsertNewsRelease ?, ?, ?, ?, ?, ?, ?, ?";
+        String sql = "EXEC InsertNewsFeed ?, ?, ?, ?, ?, ?, ?, ?";
         // The 'try-with-resources' statement ensures that the Connection and PreparedStatement
         // are automatically closed when the block finishes, even if errors occur.
         try (Connection conn = DriverManager.getConnection(CONNECTION_URL); // Establishes a connection to the database.
              PreparedStatement stmt = conn.prepareStatement(sql)) { // Prepares the SQL statement, preventing SQL injection.
 
             // Sets the values for each placeholder in the SQL statement, matching the order
-            // expected by the 'InsertNewsRelease' stored procedure.
+            // expected by the 'InsertNewsFeed' stored procedure.
             stmt.setString(1, news.getTitle());
             stmt.setString(2, news.getDescription());
             stmt.setString(3, news.getLink());
@@ -95,7 +96,7 @@ public class DatabaseSingleton {
      */
     public static boolean alreadyInDatabase(String guid) {
         // SQL query to count records where the GUID matches.
-        String sql = "SELECT COUNT(*) FROM NewsRelease WHERE guid = ?";
+        String sql = "SELECT COUNT(*) FROM NewsFeed WHERE guid = ?";
         try (Connection conn = DriverManager.getConnection(CONNECTION_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -114,7 +115,7 @@ public class DatabaseSingleton {
 
     public static Set<String> getAllGuids1() {
         Set<String> guids = new HashSet<>();
-        String sql = "SELECT guid FROM NewsRelease";
+        String sql = "SELECT guid FROM NewsFeed";
         // Runtime (unchecked) exceptions
         try (Connection conn = DriverManager.getConnection(CONNECTION_URL);
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -129,7 +130,7 @@ public class DatabaseSingleton {
     }
 
     /**
-     * Retrieves all Global Unique Identifiers (GUIDs) from the NewsRelease table in the database.
+     * Retrieves all Global Unique Identifiers (GUIDs) from the NewsFeed table in the database.
      * This is useful for efficiently checking for duplicates or managing existing records
      * without fetching all news details.
      *
@@ -139,7 +140,7 @@ public class DatabaseSingleton {
     public static Set<String> getAllGuids() {
         // Creates a new HashSet to store unique GUIDs.
         Set<String> guids = new HashSet<>();
-        String sql = "SELECT guid FROM NewsRelease"; // SQL query to select all GUIDs.
+        String sql = "SELECT guid FROM NewsFeed"; // SQL query to select all GUIDs.
         try (Connection conn = DriverManager.getConnection(CONNECTION_URL);
              PreparedStatement stmt = conn.prepareStatement(sql);
 

@@ -34,6 +34,7 @@ public class RssParser {
     public List<NewsFeed> parse(int count) {
         // List for ordered storage, here will be saved received RSS feed
         List<NewsFeed> rssFeed = new ArrayList<>();
+        System.out.println("PARSE count " + count);
 
         // start thread
         ExecutorService executor = Executors.newCachedThreadPool();
