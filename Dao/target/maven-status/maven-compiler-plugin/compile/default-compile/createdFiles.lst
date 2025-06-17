@@ -1,0 +1,7 @@
+com\paola\dal\NewsRepository.class
+com\paola\Dao.class
+com\paola\Models\NewsFeed.class
+com\paola\dal\sql\DatabaseSingleton.class
+com\paola\Models\MediaItem.class
+com\paola\dal\NewsRepositoryInterface.class
+com\paola\Models\NewsCategory.class

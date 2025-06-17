@@ -1,0 +1,5 @@
+com\paola\MainFrame.class
+com\paola\controller\NewsController.class
+com\paola\ArticalManager.class
+com\paola\MainFrame$1.class
+com\paola\parser\RssParser.class
