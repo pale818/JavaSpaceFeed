@@ -14,11 +14,10 @@ import com.paola.parser.RssParser;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +27,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -115,20 +113,23 @@ public class MainForm extends javax.swing.JFrame {
         viewModeGroup.add(rbTitleDesc);
         viewModeGroup.add(rbFull);
         
+        /*
         dropPanel = new JPanel();
+        dropPanel.setName("dropPanel");
         dropPanel.setPreferredSize(new Dimension(600, 400));
         dropPanel.setBorder(BorderFactory.createTitledBorder("Drop Image Here"));
         dropPanel.setMinimumSize(new Dimension(50, 50));
-        lblBigImg = new JLabel("Drag image here", SwingConstants.CENTER);
-        lblBigImg.setVerticalAlignment(SwingConstants.CENTER);
+        //lblBigImg = new JLabel("Drag image here", SwingConstants.CENTER);
+        //lblBigImg.setVerticalAlignment(SwingConstants.CENTER);
         dropPanel.setLayout(new BorderLayout());
         dropPanel.add(lblBigImg, BorderLayout.CENTER);
+           */
+        
 
-        
-        
-        dropPanel.setTransferHandler(new TransferHandler() {
+        lblBigImg.setTransferHandler(new TransferHandler() {
             @Override
             public boolean canImport(TransferSupport support) {
+                System.out.println("Drop target entered: " + support.getComponent().getName());
                 return support.isDataFlavorSupported(DataFlavor.imageFlavor);
             }
 
@@ -149,62 +150,78 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-        dropPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+        lblBigImg.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent e) {
                 resizeDropLabelImage();
             }
         });
-        
+        //lblBigImg.setTransferHandler(dropPanel.getTransferHandler());
 
+        /*
+        dropPanel.setFocusable(true);
+        dropPanel.setEnabled(true);
+        //dropPanel.setDropTarget(null);
+        dropPanel.setVisible(true);
+        System.out.println("dropPanel handler set on: " + dropPanel.hashCode());
+
+        
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dropPanel, scrollPanel);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerLocation(500);
         add(splitPane, BorderLayout.CENTER);
+        */
         
         // draging icon lblImageIcon
-        lblImageIcon.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
+        lblImageIcon.setTransferHandler(new TransferHandler() {
+            @Override
+            protected Transferable createTransferable(JComponent c) {
                 Icon icon = lblImageIcon.getIcon();
+                System.out.println("ICON = " + lblImageIcon.getIcon());
+
                 if (icon instanceof ImageIcon) {
                     Image image = ((ImageIcon) icon).getImage();
-
-                    lblImageIcon.setTransferHandler(new TransferHandler() {
+                    return new Transferable() {
                         @Override
-                        protected Transferable createTransferable(JComponent c) {
-                            return new Transferable() {
-                                @Override
-                                public DataFlavor[] getTransferDataFlavors() {
-                                    return new DataFlavor[]{DataFlavor.imageFlavor};
-                                }
-
-                                @Override
-                                public boolean isDataFlavorSupported(DataFlavor flavor) {
-                                    return DataFlavor.imageFlavor.equals(flavor);
-                                }
-
-                                @Override
-                                public Object getTransferData(DataFlavor flavor) {
-                                    return fullSizeImage;
-                                }
-                            };
+                        public DataFlavor[] getTransferDataFlavors() {
+                            return new DataFlavor[]{DataFlavor.imageFlavor};
                         }
 
                         @Override
-                        public int getSourceActions(JComponent c) {
-                            return COPY;
+                        public boolean isDataFlavorSupported(DataFlavor flavor) {
+                            return DataFlavor.imageFlavor.equals(flavor);
                         }
-                    });
 
-                    lblImageIcon.getTransferHandler().exportAsDrag(lblImageIcon, e, TransferHandler.COPY);
+                        @Override
+                        public Object getTransferData(DataFlavor flavor) {
+                            return image;
+                        }
+                    };
                 }
+                return null;
+            }
+
+            @Override
+            public int getSourceActions(JComponent c) {
+                return COPY;
             }
         });
         
+        // 🟡 Now listen to mouse movement
+        lblImageIcon.addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    System.out.println("Dragging...");
+                    lblImageIcon.getTransferHandler().exportAsDrag(lblImageIcon, e, TransferHandler.COPY);
+                }
+           });
 
+        lblImageIcon.setEnabled(true);
+        lblImageIcon.setFocusable(true);
+        lblImageIcon.setOpaque(true);
     }
       // *****************************************************************
-    // CODE BEGIN
-    // *****************************************************************
+      // CODE BEGIN
+      // *****************************************************************
 
         private void resizeDropLabelImage() {
         if (fullSizeImage == null || lblBigImg.getWidth() == 0 || lblBigImg.getHeight() == 0)
@@ -240,15 +257,18 @@ public class MainForm extends javax.swing.JFrame {
 
             boolean showDesc = currentViewMode != ViewMode.TITLE_ONLY;
             txtDesc.setText(showDesc ? news.getDescription() : "");
-            scrollPanel.setVisible(showDesc);
+            //scrollPanel.setVisible(showDesc);
 
             boolean showImage = currentViewMode == ViewMode.FULL;
             lblImageIcon.setVisible(showImage);
 
+
+
+            // jsplitter 
+            /*
             if (splitPane != null)  {
                 remove(splitPane);
             }
-
             if (currentViewMode == ViewMode.FULL) {
                 splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dropPanel, scrollPanel);
             } else if (currentViewMode == ViewMode.TITLE_DESC) {
@@ -256,12 +276,15 @@ public class MainForm extends javax.swing.JFrame {
             } else {
                 splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), new JPanel());
             }
-
+            
             splitPane.setResizeWeight(0.5);
             splitPane.setDividerLocation(500);
             add(splitPane, BorderLayout.CENTER);
             revalidate();
             repaint();
+            */
+            
+
 
             ImageIcon icon = null;
             try {
@@ -277,6 +300,8 @@ public class MainForm extends javax.swing.JFrame {
             } catch (Exception ignored) {}
 
             lblImageIcon.setIcon(icon);
+            lblImageIcon.setText(null);
+
         });
     }
 
@@ -419,7 +444,6 @@ public class MainForm extends javax.swing.JFrame {
         btnPrev = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtDesc = new javax.swing.JTextArea();
-        scrollPanel = new javax.swing.JScrollPane();
         btnFullimg = new javax.swing.JButton();
         lblDate = new javax.swing.JLabel();
         lblBigImg = new javax.swing.JLabel();
@@ -519,7 +543,7 @@ public class MainForm extends javax.swing.JFrame {
 
         lblDate.setText("jLabel1");
 
-        lblBigImg.setText("jLabel1");
+        lblBigImg.setText("Big Image");
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -548,9 +572,6 @@ public class MainForm extends javax.swing.JFrame {
                                     .addComponent(jPanelCheck, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGap(126, 126, 126))
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addGap(192, 192, 192)
-                                    .addComponent(scrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
                                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 466, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addContainerGap()))
                             .addGroup(layout.createSequentialGroup()
@@ -566,10 +587,10 @@ public class MainForm extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(btnNext)
                                 .addGap(18, 18, 18)
-                                .addComponent(btnRefresh))
-                            .addComponent(lblBigImg, javax.swing.GroupLayout.PREFERRED_SIZE, 387, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(btnFullimg)
+                                .addComponent(btnRefresh)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnFullimg))
+                            .addComponent(lblBigImg, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(36, 36, 36)
                         .addComponent(loadingProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -588,9 +609,7 @@ public class MainForm extends javax.swing.JFrame {
                     .addComponent(lblImageIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(scrollPanel)
-                        .addComponent(lblBigImg, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE))
+                    .addComponent(lblBigImg, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -705,7 +724,6 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JRadioButton rbFull;
     private javax.swing.JRadioButton rbTitleDesc;
     private javax.swing.JRadioButton rbTitleOnly;
-    private javax.swing.JScrollPane scrollPanel;
     private javax.swing.JSpinner spinnerloadCount;
     private javax.swing.JTextArea txtDesc;
     // End of variables declaration//GEN-END:variables

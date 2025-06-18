@@ -56,9 +56,6 @@
                                   <EmptySpace min="-2" pref="126" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
-                                  <EmptySpace min="-2" pref="192" max="-2" attributes="0"/>
-                                  <Component id="scrollPanel" min="-2" pref="17" max="-2" attributes="0"/>
-                                  <EmptySpace type="separate" max="-2" attributes="0"/>
                                   <Component id="jScrollPane1" min="-2" pref="466" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
@@ -81,11 +78,11 @@
                               <Component id="btnNext" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="btnRefresh" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="btnFullimg" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="lblBigImg" alignment="0" min="-2" pref="387" max="-2" attributes="0"/>
+                          <Component id="lblBigImg" alignment="0" min="-2" pref="441" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="btnFullimg" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
                       <Component id="loadingProgress" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -109,10 +106,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="scrollPanel" max="32767" attributes="0"/>
-                      <Component id="lblBigImg" pref="357" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="lblBigImg" min="-2" pref="357" max="-2" attributes="0"/>
                   <Component id="jScrollPane1" alignment="0" min="-2" pref="357" max="-2" attributes="0"/>
               </Group>
               <EmptySpace pref="34" max="32767" attributes="0"/>
@@ -264,10 +258,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JScrollPane" name="scrollPanel">
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-    </Container>
     <Component class="javax.swing.JButton" name="btnFullimg">
       <Properties>
         <Property name="text" type="java.lang.String" value="Full Image"/>
@@ -280,7 +270,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="lblBigImg">
       <Properties>
-        <Property name="text" type="java.lang.String" value="jLabel1"/>
+        <Property name="text" type="java.lang.String" value="Big Image"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JProgressBar" name="loadingProgress">
