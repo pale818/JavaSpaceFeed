@@ -23,17 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
@@ -44,32 +40,14 @@ import javax.swing.TransferHandler.TransferSupport;
  */
 public class MainForm extends javax.swing.JFrame {
 
-    //private JLabel lblTitle;
-    //private JLabel imageLabel;
-    //private JTextArea descriptionArea;
-    //private JScrollPane scrollPanel;
-    //private JButton prevButton;
-    //private JButton nextButton;
-    //private JLabel dateLabel;
-    //private JButton viewFullImageButton;
-    //private JComboBox<NewsCategory> categoryComboBox;
     private Image fullSizeImage;
-
-    private JPanel dropPanel;
-    //private JLabel dropLabel;
-
+    
+    
     private NewsController controller;
     private enum ViewMode { TITLE_ONLY, TITLE_DESC, FULL }
     private ViewMode currentViewMode = ViewMode.FULL;
 
-    private JSplitPane splitPane;
-
-    //private JProgressBar loadingProgressBar; // Declared here
-    //private JButton refreshButton; // Declare refreshButton at class level to access it in setUIEnabled
-    //private JSpinner spinnerLoadCount; // Declare spinnerLoadCount at class level to access it in setUIEnabled
-
-    //JPanel navPanel;
-	
+    
     /**
      * Creates new form MainForm
      */
@@ -81,17 +59,12 @@ public class MainForm extends javax.swing.JFrame {
         
 
         cmbCategory.removeAllItems(); // Clear "Item 1", etc.
+        cmbCategory.addItem("");
         for (NewsCategory category : NewsCategory.values()) {
                 cmbCategory.addItem(category.name()); // Or category.toString() if overridden
         }
 
-        // fill combobox
-        /*String[] categoryStrings = Arrays.stream(NewsCategory.values())
-                                 .map(Enum::name)
-                                 .toArray(String[]::new);
-        cmbCategory = new JComboBox<>(categoryStrings);
-        cmbCategory.insertItemAt(null, 0);
-        cmbCategory.setSelectedIndex(0);*/
+        
     
         spinnerloadCount.setModel(new javax.swing.SpinnerNumberModel(5, 1, 20, 1));
 
@@ -113,17 +86,7 @@ public class MainForm extends javax.swing.JFrame {
         viewModeGroup.add(rbTitleDesc);
         viewModeGroup.add(rbFull);
         
-        /*
-        dropPanel = new JPanel();
-        dropPanel.setName("dropPanel");
-        dropPanel.setPreferredSize(new Dimension(600, 400));
-        dropPanel.setBorder(BorderFactory.createTitledBorder("Drop Image Here"));
-        dropPanel.setMinimumSize(new Dimension(50, 50));
-        //lblBigImg = new JLabel("Drag image here", SwingConstants.CENTER);
-        //lblBigImg.setVerticalAlignment(SwingConstants.CENTER);
-        dropPanel.setLayout(new BorderLayout());
-        dropPanel.add(lblBigImg, BorderLayout.CENTER);
-           */
+        
         
 
         lblBigImg.setTransferHandler(new TransferHandler() {
@@ -155,21 +118,7 @@ public class MainForm extends javax.swing.JFrame {
                 resizeDropLabelImage();
             }
         });
-        //lblBigImg.setTransferHandler(dropPanel.getTransferHandler());
-
-        /*
-        dropPanel.setFocusable(true);
-        dropPanel.setEnabled(true);
-        //dropPanel.setDropTarget(null);
-        dropPanel.setVisible(true);
-        System.out.println("dropPanel handler set on: " + dropPanel.hashCode());
-
         
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dropPanel, scrollPanel);
-        splitPane.setResizeWeight(0.5);
-        splitPane.setDividerLocation(500);
-        add(splitPane, BorderLayout.CENTER);
-        */
         
         // draging icon lblImageIcon
         lblImageIcon.setTransferHandler(new TransferHandler() {
@@ -193,7 +142,7 @@ public class MainForm extends javax.swing.JFrame {
 
                         @Override
                         public Object getTransferData(DataFlavor flavor) {
-                            return image;
+                            return fullSizeImage;
                         }
                     };
                 }
@@ -255,37 +204,38 @@ public class MainForm extends javax.swing.JFrame {
             lblTitle.setText(news.getTitle());
             lblDate.setText("Published: " + news.getPubDate());
 
-            boolean showDesc = currentViewMode != ViewMode.TITLE_ONLY;
-            txtDesc.setText(showDesc ? news.getDescription() : "");
-            //scrollPanel.setVisible(showDesc);
+           
+            // default
+            txtDesc.setVisible(true);
+            lblBigImg.setVisible(true);
 
-            boolean showImage = currentViewMode == ViewMode.FULL;
-            lblImageIcon.setVisible(showImage);
+            if (currentViewMode == ViewMode.TITLE_ONLY) {
+                lblBigImg.setVisible(false);
+                txtDesc.setVisible(false);
+                txtDesc.setText("");
+            } 
 
-
-
-            // jsplitter 
-            /*
-            if (splitPane != null)  {
-                remove(splitPane);
-            }
+            if (currentViewMode == ViewMode.TITLE_DESC) {
+                lblBigImg.setVisible(false);
+                txtDesc.setVisible(true);
+                txtDesc.setText(news.getDescription());
+            } 
+            
             if (currentViewMode == ViewMode.FULL) {
-                splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dropPanel, scrollPanel);
-            } else if (currentViewMode == ViewMode.TITLE_DESC) {
-                splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), scrollPanel);
-            } else {
-                splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), new JPanel());
-            }
-            
-            splitPane.setResizeWeight(0.5);
-            splitPane.setDividerLocation(500);
-            add(splitPane, BorderLayout.CENTER);
-            revalidate();
-            repaint();
-            */
-            
+               System.out.println("SET VISIBILITY FULL");
 
+                lblBigImg.setVisible(true);
+                //resizeDropLabelImage();
 
+                txtDesc.setVisible(true);
+                txtDesc.setText(news.getDescription());
+                
+                SwingUtilities.invokeLater(() -> {
+                    splitPane.setResizeWeight(0.5);
+                    splitPane.setDividerLocation(splitPane.getWidth() / 2);
+                });
+            } 
+                        
             ImageIcon icon = null;
             try {
                 String path = news.getLocalImagePath();
@@ -404,11 +354,7 @@ public class MainForm extends javax.swing.JFrame {
 
         System.out.println("Unique publication dates: " + uniqueDates.size());
 
-        //javax.swing.SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
-
-        // old way of starting MaiFrame without dialog before
-        //SwingUtilities.invokeLater(() -> new MainFrame(newsList).setVisible(true));
-
+        
         // Information dialog at startup
         SwingUtilities.invokeLater(() -> {
             JOptionPane.showMessageDialog(
@@ -442,20 +388,21 @@ public class MainForm extends javax.swing.JFrame {
         btnRefresh = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
         btnPrev = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        txtDesc = new javax.swing.JTextArea();
         btnFullimg = new javax.swing.JButton();
         lblDate = new javax.swing.JLabel();
-        lblBigImg = new javax.swing.JLabel();
         loadingProgress = new javax.swing.JProgressBar();
         spinnerloadCount = new javax.swing.JSpinner();
+        splitPane = new javax.swing.JSplitPane();
+        lblBigImg = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtDesc = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
+        Exit = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        lblTitle.setText("jLabel1");
+        lblTitle.setText("Title");
 
         cmbCategory.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         cmbCategory.addActionListener(new java.awt.event.ActionListener() {
@@ -464,7 +411,7 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-        lblImageIcon.setText("jLabel1");
+        lblImageIcon.setText("Icon");
 
         rbTitleOnly.setText("Title Only");
         rbTitleOnly.addActionListener(new java.awt.event.ActionListener() {
@@ -533,23 +480,35 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
+        btnFullimg.setText("Full Image");
+
+        lblDate.setText("Date");
+
+        splitPane.setDividerLocation(500);
+
+        lblBigImg.setText("Big Image");
+        lblBigImg.setMinimumSize(new java.awt.Dimension(10, 10));
+        splitPane.setLeftComponent(lblBigImg);
+
         txtDesc.setColumns(20);
         txtDesc.setLineWrap(true);
         txtDesc.setRows(5);
         txtDesc.setWrapStyleWord(true);
         jScrollPane1.setViewportView(txtDesc);
 
-        btnFullimg.setText("Full Image");
-
-        lblDate.setText("jLabel1");
-
-        lblBigImg.setText("Big Image");
+        splitPane.setRightComponent(jScrollPane1);
 
         jMenu1.setText("File");
-        jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
+        Exit.setText("Exit");
+        Exit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ExitActionPerformed(evt);
+            }
+        });
+        jMenu1.add(Exit);
+
+        jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
 
@@ -564,21 +523,14 @@ public class MainForm extends javax.swing.JFrame {
                         .addComponent(cmbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGap(76, 76, 76)
-                                    .addComponent(lblImageIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jPanelCheck, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(126, 126, 126))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 466, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addContainerGap()))
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 462, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap())))
+                                .addGap(44, 44, 44)
+                                .addComponent(lblImageIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanelCheck, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 462, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(126, 126, 126))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -589,29 +541,32 @@ public class MainForm extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(btnRefresh)
                                 .addGap(18, 18, 18)
-                                .addComponent(btnFullimg))
-                            .addComponent(lblBigImg, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(36, 36, 36)
-                        .addComponent(loadingProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(spinnerloadCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnFullimg)
+                                .addGap(36, 36, 36)
+                                .addComponent(loadingProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(spinnerloadCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(splitPane, javax.swing.GroupLayout.PREFERRED_SIZE, 807, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanelCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblImageIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblBigImg, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(cmbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanelCheck, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblImageIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(btnRefresh)
@@ -621,10 +576,6 @@ public class MainForm extends javax.swing.JFrame {
                         .addComponent(spinnerloadCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(loadingProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(cmbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -641,7 +592,7 @@ public class MainForm extends javax.swing.JFrame {
             // Perform the refresh operation in a background thread to keep UI responsive.
             new Thread(() -> {
                 RssParser parser = new RssParser();
-                parser.parse(5);
+                parser.parse(count);
 
                 NewsRepository repo = new NewsRepository();
                 List<NewsFeed> updatedList = repo.findAll();
@@ -687,32 +638,49 @@ public class MainForm extends javax.swing.JFrame {
 
     private void rbTitleOnlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbTitleOnlyActionPerformed
         // TODO add your handling code here:
+        System.out.println("TITLE_ONLY:");
         currentViewMode = ViewMode.TITLE_ONLY;
         updateDisplay();
     }//GEN-LAST:event_rbTitleOnlyActionPerformed
 
     private void rbTitleDescActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbTitleDescActionPerformed
         // TODO add your handling code here:
+        System.out.println("TITLE_DEXC");
         currentViewMode = ViewMode.TITLE_DESC;
         updateDisplay();
     }//GEN-LAST:event_rbTitleDescActionPerformed
 
     private void rbFullActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbFullActionPerformed
         // TODO add your handling code here:
+        System.out.println("FULL");
         currentViewMode = ViewMode.FULL;
         updateDisplay();
     }//GEN-LAST:event_rbFullActionPerformed
 
+    private void ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitActionPerformed
+        // TODO add your handling code here:
+        int result = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to exit?",
+            "Exit Confirmation",
+            JOptionPane.YES_NO_OPTION
+        );
+
+        if (result == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_ExitActionPerformed
+
  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem Exit;
     private javax.swing.JButton btnFullimg;
     private javax.swing.JButton btnNext;
     private javax.swing.JButton btnPrev;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JComboBox<String> cmbCategory;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanelCheck;
     private javax.swing.JScrollPane jScrollPane1;
@@ -725,6 +693,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JRadioButton rbTitleDesc;
     private javax.swing.JRadioButton rbTitleOnly;
     private javax.swing.JSpinner spinnerloadCount;
+    private javax.swing.JSplitPane splitPane;
     private javax.swing.JTextArea txtDesc;
     // End of variables declaration//GEN-END:variables
 }

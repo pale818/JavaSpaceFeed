@@ -83,3 +83,6 @@ GO
 UPDATE NewsFeed
 SET category = 'UNKNOWN'
 WHERE category IS NULL;
+
+delete from NewsFeed;
+SELECT * FROM NewsFeed;
