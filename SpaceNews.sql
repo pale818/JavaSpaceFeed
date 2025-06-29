@@ -6,6 +6,19 @@ GO
 USE Photo;
 GO
 
+CREATE TABLE NewsFeedUser (
+    id INT PRIMARY KEY IDENTITY,
+	username NVARCHAR(10),
+	isAdmin BIT
+)
+
+INSERT INTO NewsFeedUser (username, isAdmin)
+VALUES ('admin', 1);
+
+INSERT INTO NewsFeedUser (username, isAdmin)
+VALUES ('user', 0);
+
+
 -- 3. Create the required table
 CREATE TABLE NewsFeed (
     id INT PRIMARY KEY IDENTITY,
