@@ -1,3 +1,4 @@
 com\paola\Log.class
 com\paola\Utilities.class
 com\paola\Dialog.class
+com\paola\FileUtils.class

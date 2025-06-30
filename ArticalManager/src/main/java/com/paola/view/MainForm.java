@@ -6,6 +6,7 @@ package com.paola.view;
 
 
 import com.paola.Dialog;
+import com.paola.FileUtils;
 import com.paola.Models.NewsCategory;
 import com.paola.Models.NewsFeed;
 import com.paola.controller.NewsController;
@@ -13,6 +14,7 @@ import com.paola.dal.NewsRepository;
 import com.paola.Models.User;
 import com.paola.dal.sql.DatabaseSingleton;
 import com.paola.parser.RssParser;
+import com.paola.ui.BigImage;
 import com.paola.ui.LoginDialog;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -392,6 +394,8 @@ public class MainForm extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenuDelete = new javax.swing.JMenuItem();
         Exit = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuLoadImage = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -508,6 +512,18 @@ public class MainForm extends javax.swing.JFrame {
         jMenu1.add(Exit);
 
         jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Load");
+
+        jMenuLoadImage.setText("Load image");
+        jMenuLoadImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuLoadImageActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuLoadImage);
+
+        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -681,6 +697,21 @@ public class MainForm extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jMenuDeleteActionPerformed
 
+    private void jMenuLoadImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuLoadImageActionPerformed
+        // TODO add your handling code here:
+        // load image from file
+        File file = FileUtils.uploadFile("Images", "jpg", "jpeg", "png");
+        if (file == null) {
+                return;
+        }
+        String imagePath = file.getAbsolutePath();
+        System.out.println("file: " + imagePath);
+
+        BigImage bigImageForm = new BigImage(imagePath);
+        bigImageForm.setVisible(true);
+
+    }//GEN-LAST:event_jMenuLoadImageActionPerformed
+
      private static void deleteAllAssetImages() {
         File assetsDir = new File("assets"); // relative to project root / working directory
 
@@ -716,8 +747,10 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JButton btnRefresh;
     private javax.swing.JComboBox<String> cmbCategory;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuDelete;
+    private javax.swing.JMenuItem jMenuLoadImage;
     private javax.swing.JPanel jPanelCheck;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblBigImg;

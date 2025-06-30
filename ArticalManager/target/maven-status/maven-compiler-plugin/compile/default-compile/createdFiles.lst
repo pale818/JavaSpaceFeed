@@ -1,10 +1,12 @@
 com\paola\view\MainForm$3.class
+com\paola\ui\BigImage$1.class
 com\paola\view\MainForm$8.class
 com\paola\view\MainForm$12.class
 com\paola\ui\LoginDialog$2.class
 com\paola\ui\LoginDialog$4.class
 com\paola\controller\NewsController.class
 com\paola\ArticalManager.class
+com\paola\ui\BigImage.class
 com\paola\ui\LoginDialog.class
 com\paola\view\MainForm$3$1.class
 com\paola\view\MainForm$13.class
@@ -24,3 +26,4 @@ com\paola\ui\LoginDialog$3.class
 com\paola\view\MainForm$ViewMode.class
 com\paola\parser\RssParser.class
 com\paola\view\MainForm$1.class
+com\paola\view\MainForm$14.class
