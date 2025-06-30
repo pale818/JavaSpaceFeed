@@ -23,11 +23,12 @@ import java.util.concurrent.Executors;
 
 
 public class RssParser {
-     private static final String RSS_URL = "https://www.nasa.gov/news-release/feed/";
+    private static final String RSS_URL = "https://www.nasa.gov/news-release/feed/";
 
+    private RssParser() {};
     
 
-    public List<NewsFeed> parse(int count) {
+    public static List<NewsFeed> parse(int count) {
         List<NewsFeed> rssFeed = new ArrayList<>();
         System.out.println("PARSE count " + count);
 
@@ -140,7 +141,7 @@ public class RssParser {
 
 
    
-    private void downloadImage(String imageUrl, String filename) {
+    private static void downloadImage(String imageUrl, String filename) {
         try {
             URL url = new URL(imageUrl);
             Path folder = Paths.get("assets");
@@ -166,7 +167,7 @@ public class RssParser {
     }
 
     
-    private String getAttribute(org.w3c.dom.Element parent, String tagName, String attributeName) {
+    private static String getAttribute(org.w3c.dom.Element parent, String tagName, String attributeName) {
         NodeList list = parent.getElementsByTagName(tagName); 
         if (list.getLength() > 0) {
             org.w3c.dom.Element elem = (org.w3c.dom.Element) list.item(0); 
@@ -176,7 +177,7 @@ public class RssParser {
     }
 
    
-    private String getText(org.w3c.dom.Element parent, String tagName) {
+    private static String getText(org.w3c.dom.Element parent, String tagName) {
         NodeList list = parent.getElementsByTagName(tagName); 
         if (list.getLength() > 0 && list.item(0).getTextContent() != null) {
             return list.item(0).getTextContent().trim(); 
@@ -185,7 +186,7 @@ public class RssParser {
     }
 
     
-    private String extractLargestImageFromContent(String html) {
+    private static String extractLargestImageFromContent(String html) {
         if (html == null) return null;
         org.jsoup.nodes.Document doc = Jsoup.parse(html); 
         org.jsoup.select.Elements images = doc.select("img"); 

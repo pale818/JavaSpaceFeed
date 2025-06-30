@@ -9,9 +9,11 @@ package com.paola.dal.sql;
 
 import com.paola.Models.NewsCategory;
 import com.paola.Models.NewsFeed;
+import com.paola.Models.User;
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class DatabaseSingleton {
    
@@ -27,7 +29,61 @@ public class DatabaseSingleton {
         return instance;
     }
 
+    public static User authenticateUser(String username, String password) {
+        // just for my testing to get hashed passwords
+        String rawPassword = "admin123";
+        String hashed = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+        System.out.println("Hashed admin password: " + hashed);
 
+        rawPassword = "user123";
+        hashed = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+        System.out.println("Hashed user password: " + hashed);
+                
+        String sql = "SELECT UserId, username, passwordhash, isAdmin FROM NewsFeedUser WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(CONNECTION_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String storedPasswordHash = rs.getString("passwordhash");
+                System.out.println("Hash from DB: " + storedPasswordHash); 
+                
+                
+                if (BCrypt.checkpw(password, storedPasswordHash)) {
+                    System.out.println("PASSWORD CHECKED");
+
+                    int id = rs.getInt("UserId");
+                    boolean isAdmin = rs.getBoolean("isAdmin");
+                    return new User(id, username, isAdmin);
+                }
+                
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error during authentication: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Error during password hashing check: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null; // Authentication failed
+    }
+
+    public static void deleteAllNewsFeeds() {
+        String sql = "EXEC DeleteAllNewsFeeds";
+        try (Connection conn = DriverManager.getConnection(CONNECTION_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.executeUpdate();
+            System.out.println("All NewsFeed records deleted.");
+
+        } catch (SQLException e) {
+            System.err.println("Failed to delete all news feeds.");
+            e.printStackTrace();
+        }
+    }
+	
     public static void insertNewsFeed(NewsFeed news) {
         String sql = "EXEC InsertNewsFeed ?, ?, ?, ?, ?, ?, ?, ?";
      

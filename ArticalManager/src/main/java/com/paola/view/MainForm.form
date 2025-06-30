@@ -9,6 +9,14 @@
             <Property name="text" type="java.lang.String" value="File"/>
           </Properties>
           <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuDelete">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Delete all data"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuDeleteActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="Exit">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Exit"/>
@@ -72,9 +80,7 @@
                               <Component id="btnNext" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="btnRefresh" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="btnFullimg" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="139" max="-2" attributes="0"/>
                               <Component id="loadingProgress" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="spinnerloadCount" min="-2" max="-2" attributes="0"/>
@@ -114,7 +120,6 @@
                       <Component id="btnRefresh" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnNext" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnPrev" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnFullimg" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="spinnerloadCount" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="loadingProgress" min="-2" max="-2" attributes="0"/>
@@ -234,11 +239,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPrevActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JButton" name="btnFullimg">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Full Image"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lblDate">
       <Properties>

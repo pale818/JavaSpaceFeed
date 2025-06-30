@@ -10,7 +10,10 @@ import com.paola.Models.NewsCategory;
 import com.paola.Models.NewsFeed;
 import com.paola.controller.NewsController;
 import com.paola.dal.NewsRepository;
+import com.paola.Models.User;
+import com.paola.dal.sql.DatabaseSingleton;
 import com.paola.parser.RssParser;
+import com.paola.ui.LoginDialog;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -18,10 +21,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -46,14 +47,24 @@ public class MainForm extends javax.swing.JFrame {
     private NewsController controller;
     private enum ViewMode { TITLE_ONLY, TITLE_DESC, FULL }
     private ViewMode currentViewMode = ViewMode.FULL;
-
+    private User loggedInUser;
     
     
-    public MainForm(List<NewsFeed> newsList) {
+    public MainForm(List<NewsFeed> newsList, User loggedInUser) {
         
         this.controller= new NewsController(newsList);
+        this.loggedInUser = loggedInUser;
+
         initComponents();
         updateDisplay();
+        
+        
+        jMenuDelete.setVisible(false);
+        // Show only if admin
+        if (loggedInUser.isAdmin()) {
+            jMenuDelete.setVisible(true);
+        }
+        
         
 
         cmbCategory.removeAllItems(); 
@@ -305,14 +316,13 @@ public class MainForm extends javax.swing.JFrame {
         btnRefresh.setEnabled(enabled);
         btnPrev.setEnabled(enabled);
         btnNext.setEnabled(enabled);
-        btnFullimg.setEnabled(enabled);
         cmbCategory.setEnabled(enabled);
         spinnerloadCount.setEnabled(enabled); // Also disable the spinner during loading.
     }
     
-    // *****************************************************************
+    // **********************************************************
     // CODE END
-    // *****************************************************************
+    // ***********************************************
   
   
     /**
@@ -327,31 +337,31 @@ public class MainForm extends javax.swing.JFrame {
         System.out.println("Loaded " + newsList.size() + " news items from database.");
         System.out.println("Parsed " + newsList.size() + " news items.");
 
-        // Group by pubDate
-        Map<String, List<NewsFeed>> grouped = newsList.stream()
-                .collect(Collectors.groupingBy(NewsFeed::getPubDate));
-
-        grouped.forEach((date, items) -> {
-            System.out.println("Date: " + date + ", Count: " + items.size());
-        });
-
-        Set<String> uniqueDates = newsList.stream()
-                .map(NewsFeed::getPubDate)
-                .collect(Collectors.toSet());
-
-        System.out.println("Unique publication dates: " + uniqueDates.size());
-
+        LoginDialog loginDialog = new LoginDialog(null, true); 
+        loginDialog.setVisible(true);
         
-        // Information dialog at startup
-        SwingUtilities.invokeLater(() -> {
+        User loggedInUser = loginDialog.getAuthenticatedUser();
+        
+        if (loggedInUser != null) {
             JOptionPane.showMessageDialog(
-                    null,
-                    "Welcome to NASA News Viewer!\nUse the Next and Previous buttons to browse the news.\nClick OK to continue.",
-                    "Welcome",
-                    JOptionPane.INFORMATION_MESSAGE
+                null,
+                "Welcome to NASA News Viewer, " + loggedInUser.getUsername() + "!\nUse the Next and Previous buttons to browse the news.\nClick OK to continue.",
+                "Welcome",
+                JOptionPane.INFORMATION_MESSAGE
             );
-            new MainForm(newsList).setVisible(true);
-        });
+
+            MainForm mainForm = new MainForm(newsList, loggedInUser);
+            mainForm.setVisible(true);
+
+        } else {
+            JOptionPane.showMessageDialog(
+                null,
+                "Login cancelled or failed. Application will now exit.",
+                "Exit",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            System.exit(0); // Exit the application if login is not successful
+        }
 
 
     }
@@ -371,7 +381,6 @@ public class MainForm extends javax.swing.JFrame {
         btnRefresh = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
         btnPrev = new javax.swing.JButton();
-        btnFullimg = new javax.swing.JButton();
         lblDate = new javax.swing.JLabel();
         loadingProgress = new javax.swing.JProgressBar();
         spinnerloadCount = new javax.swing.JSpinner();
@@ -381,6 +390,7 @@ public class MainForm extends javax.swing.JFrame {
         txtDesc = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        jMenuDelete = new javax.swing.JMenuItem();
         Exit = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -463,8 +473,6 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-        btnFullimg.setText("Full Image");
-
         lblDate.setText("Date");
 
         splitPane.setDividerLocation(500);
@@ -482,6 +490,14 @@ public class MainForm extends javax.swing.JFrame {
         splitPane.setRightComponent(jScrollPane1);
 
         jMenu1.setText("File");
+
+        jMenuDelete.setText("Delete all data");
+        jMenuDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuDeleteActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuDelete);
 
         Exit.setText("Exit");
         Exit.addActionListener(new java.awt.event.ActionListener() {
@@ -523,9 +539,7 @@ public class MainForm extends javax.swing.JFrame {
                                 .addComponent(btnNext)
                                 .addGap(18, 18, 18)
                                 .addComponent(btnRefresh)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnFullimg)
-                                .addGap(36, 36, 36)
+                                .addGap(139, 139, 139)
                                 .addComponent(loadingProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(spinnerloadCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -555,7 +569,6 @@ public class MainForm extends javax.swing.JFrame {
                         .addComponent(btnRefresh)
                         .addComponent(btnNext)
                         .addComponent(btnPrev)
-                        .addComponent(btnFullimg)
                         .addComponent(spinnerloadCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(loadingProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
@@ -573,8 +586,7 @@ public class MainForm extends javax.swing.JFrame {
 
             new Thread(() -> {
                 
-                RssParser parser = new RssParser();
-                parser.parse(count);
+                RssParser.parse(count);
 
                 NewsRepository repo = new NewsRepository();
                 List<NewsFeed> updatedList = repo.findAll();
@@ -653,17 +665,59 @@ public class MainForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ExitActionPerformed
 
- 
+    private void jMenuDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuDeleteActionPerformed
+        // TODO add your handling code here:
+        int result = JOptionPane.showConfirmDialog(this, "Delete all news and images?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            DatabaseSingleton.deleteAllNewsFeeds();
+            deleteAllAssetImages();
+            controller.setNewsList(Collections.emptyList());
+            txtDesc.setText("");
+            lblImageIcon.setIcon(null);
+            lblBigImg.setIcon(null);
+            updateDisplay();
+            JOptionPane.showMessageDialog(this, "All news and images have been deleted.");
+        } 
+        
+    }//GEN-LAST:event_jMenuDeleteActionPerformed
+
+     private static void deleteAllAssetImages() {
+        File assetsDir = new File("assets"); // relative to project root / working directory
+
+        if (!assetsDir.exists() || !assetsDir.isDirectory()) {
+            System.out.println("assets folder not found.");
+            return;
+        }
+
+        File[] files = assetsDir.listFiles();
+        if (files == null) {
+            System.out.println("Failed to list files in assets folder.");
+            return;
+        }
+
+        int deletedCount = 0;
+        for (File file : files) {
+            if (file.isFile()) {
+                if (file.delete()) {
+                    deletedCount++;
+                } else {
+                    System.out.println("Failed to delete: " + file.getName());
+                }
+            }
+        }
+
+        System.out.println("Deleted " + deletedCount + " file(s) from assets folder.");
+    } 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem Exit;
-    private javax.swing.JButton btnFullimg;
     private javax.swing.JButton btnNext;
     private javax.swing.JButton btnPrev;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JComboBox<String> cmbCategory;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuDelete;
     private javax.swing.JPanel jPanelCheck;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblBigImg;

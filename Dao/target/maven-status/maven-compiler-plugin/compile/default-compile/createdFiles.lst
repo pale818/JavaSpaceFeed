@@ -1,4 +1,5 @@
 com\paola\dal\NewsRepository.class
+com\paola\Models\User.class
 com\paola\Dao.class
 com\paola\Models\NewsFeed.class
 com\paola\dal\sql\DatabaseSingleton.class
